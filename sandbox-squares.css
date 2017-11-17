@@ -1,0 +1,422 @@
+/*globals**********************************************************************/
+*{
+	box-sizing: border-box;
+}
+html{
+	height: 100%;
+}
+body{
+	height: 100%;
+	margin: 0;
+	background-color: #ffb300;
+}
+canvas{
+	display: block;
+	position: absolute;
+	top: 32px;
+	left: 0;
+	width: 100%;
+	height: calc(100% - 32px);
+	border: 5px solid #ffb300;
+	z-index: 2;
+	background-color: #fff;
+}
+
+/*tooltip-section**************************************************************/
+#tooltip{
+	display: none;
+	position: absolute;
+	top: calc(50% + 64px);
+	left: 50%;
+	transform: translateX(-50%);
+	-webkit-transform: translateX(-50%);
+	-ms-transform: translateX(-50%);
+	width: 18em;
+	font: 400 1em/1em sans-serif;
+	color: #fff;
+	background-color: #333;
+	padding: 1em 2em;
+	border: 2px solid #ffb300;
+	border-radius: 10px;
+	box-shadow: 0 0 50px #000;
+	z-index: 3;
+}
+#tooltip .arrow{
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translate(-50%, -32px);
+	-webkit-transform: translate(-50%, -32px);
+	-ms-transform: translate(-50%, -32px);
+	width: 32px;
+	border-bottom: 32px solid #ffb300;
+	border-right: 16px solid rgba(0, 0, 0, 0);
+	border-left: 16px solid rgba(0, 0, 0, 0);
+}
+#tooltip-name{
+	font: 700 1.1em/1.5em sans-serif; 
+	text-transform: uppercase;
+	text-align: center;
+}
+#tooltip .item{
+	font: 400 1em/1.5em sans-serif;
+	text-transform: uppercase;
+	padding: 5px 0;
+}
+#tooltip .bar{
+	display: inline-block;
+	float: right;
+	width: 60%;
+	height: 1.5em;
+	display: inline-block;
+	border: 2px solid #bbb;
+	border-radius: .75em;
+	background-color: #777;
+	overflow: hidden;
+}
+#tooltip .stat{
+	height: 1.25em;
+	background-color: #fff;
+}
+
+/*home-section*****************************************************************/
+.home-section{
+	background: #bbb url('images/home-screen-back.jpg') no-repeat;
+	background-size: cover;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 3;
+}
+.home-section .menu-box{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	-webkit-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	width: 25em;
+	font: 400 1em/1em sans-serif;
+	color: #fff;
+	background-color: #333;
+	padding: 1em 2em;
+	border: 2px solid #ffb300;
+	border-radius: 10px;
+	box-shadow: 0 0 50px #000;
+}
+.home-section .menu-box .title{
+	font: 700 2em/1.5em sans-serif;
+	text-align: center;
+	text-transform: uppercase;
+	text-shadow: 0 0 10px #ffb300;
+}
+.home-section .menu-box .description{
+	font: 700 .75em/1.5em sans-serif;
+	text-align: center;
+	text-transform: uppercase;
+	text-shadow: 0 0 10px #000;
+	letter-spacing: .25em;
+	padding-bottom: 1em;
+	margin-bottom: 1em;
+	border-bottom: 1px solid #fff;
+}
+.home-section .menu-box .button{
+	font: 700 1.5em/2em sans-serif;
+	text-align: center;
+	text-transform: uppercase;
+	color: #fff;
+	background-color: #ffb300;
+	cursor: pointer;
+	box-shadow: 0 5px 0px #cc8f00;
+	border-radius: 10px;
+	margin: 0 0 20px 0;
+}
+.home-section .menu-box .button:hover{
+	background-color: #cc8f00;
+	box-shadow: 0 5px 0px #996B00;
+}
+
+.how-to-section{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	overflow-y: scroll;
+	transform: translate(-50%, -50%);
+	-webkit-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	width: 25em;
+	height: 25em;
+	z-index: 4;
+	font: 400 1em/1em sans-serif;
+	color: #fff;
+	background-color: #333;
+	padding: 1em 2em;
+	border: 2px solid #ffb300;
+	border-radius: 10px;
+	box-shadow: 0 0 50px #000;
+}
+
+/*expense-section**************************************************************/
+.expense-section{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	-webkit-transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	width: 18em;
+	font: 400 1em/1em sans-serif;
+	text-transform: uppercase;
+	color: #fff;
+	background-color: #333;
+	display: none;
+	padding: 1em 2em;
+	border: 2px solid #ffb300;
+	border-radius: 10px;
+	box-shadow: 0 0 50px #000;
+	z-index: 100;
+}
+.expense-section > .title{
+	font: 700 1.5em/1em sans-serif;
+	text-align: center;
+	padding-bottom: .7em;
+	margin-bottom: .7em;
+	border-bottom: 1px solid #ffb300;
+}
+.expense-section .expense-box,
+.expense-section .income-box{
+	border-bottom: 1px solid #ffb300;
+	padding-bottom: 25px;
+	margin-bottom: 25px;
+}
+.expense-section .item-box{
+	overflow: hidden;
+}
+.expense-section .item-box > .title{
+	font: 400 1em/1.5em sans-serif;
+	float: left;
+}
+.expense-section .item-box > .item{
+	font: 400 1em/1.5em sans-serif;
+	float: right;
+}
+.expense-section .button{
+	width: 50%;
+	font: 700 1em/2em sans-serif;
+	text-align: center;
+	text-transform: uppercase;
+	color: #fff;
+	background-color: #ffb300;
+	cursor: pointer;
+	box-shadow: 0 5px 0px #cc8f00;
+	border-radius: 10px;
+	margin: 25px auto 20px auto;
+}
+.expense-section .button:hover{
+	background-color: #cc8f00;
+	box-shadow: 0 5px 0px #996B00;
+}
+
+/*info-section*****************************************************************/
+.info-section{
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	background-color: #ffb300;
+	width: 100%;
+	height: 48px;
+}
+.info-section .item{
+	width: 20%;
+	height: 32px;
+	float: left;
+	font: 700 1em/22px sans-serif;
+	text-align: center;
+	text-transform: uppercase;
+	color: #fff;
+	background-color: #333;
+	border: 5px solid #ffb300;
+	border-radius: 10px;
+}
+#menu-button:hover{
+	cursor: pointer;
+}
+
+/*menu-popup-section***********************************************************/
+.menu-popup-section{
+	display: none;
+	background-color: #333;
+	position: fixed;
+	z-index: 3;
+	top: 32px;
+	right: 0px;
+	width: auto;
+	height: auto;
+	border: 5px solid #ffb300;
+}
+.menu-popup-section .item{
+	text-align: center;
+	color: #fff;
+	padding: 10px;
+	border: 3px solid #fff;
+	border-radius: 5px;
+	margin: 10px;
+	font: 700 1em/1em sans-serif;
+}
+.menu-popup-section .item:hover{
+	cursor: pointer;
+}
+
+/*******/
+#statView{
+	width: 300px;
+	height: auto;
+	background-color: #888;
+	text-align: center;
+	color: #fff;
+	display: none;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 12;
+	padding: 10px;
+}
+#statView div{
+	line-height: 32px;
+}
+#statViewClose{
+	float: right;
+	line-height: 32px;
+	padding: 5px;
+	color: #000;
+	background-color: #fff;
+	cursor: pointer;
+}
+#toast{
+	width: 75%;
+	line-height: 48px;
+	background-color: #444;
+	color: #fff;
+	position: absolute;
+	left: 50%;
+	text-align: center;
+	top: 48px;
+	transform: translateX(-50%);
+	display: none;
+}
+.moveLeft{
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	bottom: 64px;
+	left: 32px;
+	background-color: gray;
+	border: 1px solid #fff;
+	border-radius: 8px;
+}
+.moveUp{
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	bottom: 96px;
+	left: 64px;
+	background-color: gray;
+	border: 1px solid #fff;
+	border-radius: 8px;
+}
+.moveRight{
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	bottom: 64px;
+	left: 96px;
+	background-color: gray;
+	border: 1px solid #fff;
+	border-radius: 8px;
+}
+.moveDown{
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	bottom: 32px;
+	left: 64px;
+	background-color: gray;
+	border: 1px solid #fff;
+	border-radius: 8px;
+}
+.attack{
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	bottom: 64px;
+	right: 96px;
+	background-color: gray;
+	border: 1px solid #fff;
+	border-radius: 8px;
+}
+.cycleInventory{
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	bottom: 64px;
+	right: 32px;
+	background-color: gray;
+	border: 1px solid #fff;
+	border-radius: 8px;
+}
+
+@media (max-width: 768px){
+.touch-button{
+	display: inherit;
+	z-index: 5;
+}
+.info-section .item{
+	font-size: .65em;
+}
+}
+
+@media (max-width: 480px){
+	/*tooltip-section************************************************************/	
+	#tooltip{
+		font-size: .65em;
+		top: inherit;
+		bottom: 50%;
+		transform: translate(-50%, -28px);
+		-webkit-transform: translate(-50%, -28px);
+		-ms-transform: translate(-50%, -28px);
+	}
+	#tooltip .arrow{
+		position: absolute;
+		top: inherit;
+		bottom: 0;
+		left: 50%;
+		transform: translate(-50%, 32px);
+		-webkit-transform: translate(-50%, 32px);
+		-ms-transform: translate(-50%, 32px);
+		width: 32px;
+		border-bottom: none;
+		border-top: 32px solid #ffb300;
+	}
+
+	/*home-section****************************************************************/
+	.home-section .menu-box{
+		width: 90%;
+		font-size: .8em;
+	}
+
+	.how-to-section{
+		width: 90%;
+		font-size: .8em;
+	}
+	
+.inventory-section{
+	position: absolute;
+	top: 48px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 168px;
+}

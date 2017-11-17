@@ -1,0 +1,119 @@
+<!doctype HTML>
+
+<html>
+
+	<head>
+
+		<meta charset="UTF-8">
+		<title>Sandbox Squares - A Sandbox City Sim | = new direction();</title>
+		<meta name="description" content="Build a city in this sandbox builder. Your citizens work hard to get the squares you need for construction, but make sure they are taken care of.">
+		<meta content='width=device-width, initial-scale=1' name='viewport'/>
+		<link rel="stylesheet" type="text/css" href="sandbox-squares.css">
+		<script type="text/javascript" src="scripts/world.js"></script>
+		<script type="text/javascript" src="scripts/player.js"></script>
+		<script type="text/javascript" src="scripts/path-finder.js"></script>
+		<script type="text/javascript" src="scripts/citizen.js"></script>
+		<script type="text/javascript" src="scripts/block.js"></script>
+		<script type="text/javascript" src="scripts/main.js"></script>
+	
+	</head>
+	
+	<body>
+		
+		<div id='home-screen' class="home-section">
+			<div class="menu-box">
+				<div class="title">Sandbox Squares</div>
+				<div class="description">A tile building city sim</div>
+				<div id="home-continue" class="button">Continue...</div>
+				<div id="home-new" class="button">New Game</div>
+			</div><!--end menu-box-->
+			<div class="version">Version 0.1A</div>
+		</div><!--end home-section-->
+
+		<canvas id="canvas" width="0" height="0"></canvas>
+
+		<div id="tooltip">
+			<div class="arrow"></div>
+			<div id="tooltip-name" contentEditable="true">Name Here</div>
+			<div id="tooltip-my-status" class="item"></div>
+			<div id="tooltip-my-home" class="item">My Home <div class="bar"><div class="stat"></div></div></div>
+			<div id="tooltip-my-work" class="item">My Work <div class="bar"><div class="stat"></div></div></div>
+		</div>
+
+		<div id="toast"></div>
+
+		<div class="info-section">
+				<div id="time" class="item">0:00</div>
+				<div id="tokens" class="item">0</div>
+				<div id="inventory-selection" class="item">Road</div>
+				<div id="population" class="item">P:0</div>
+				<div id="menu-button" class="item">MENU</div>
+		</div>
+
+		<div id="menu-popup" class="menu-popup-section">
+			<div id="zoom-in" class="item">+</div>
+			<div id="zoom-out" class="item">-</div>
+			<div id="stats" class="item">$</div>
+			<div onclick="window.close();" id="close" class="item">X</div>
+		</div>
+
+		<div id="expense-popup" class="expense-section">
+
+			<div class="title">Expense Report</div>
+
+			<div class="expense-box">
+
+				<div class="item-box">
+					<div class="title">Food</div>
+					<div id="food-expense" class="item">Unknown</div>
+				</div><!--end item-box-->
+
+				<div class="item-box">
+					<div class="title">Road</div>
+					<div id="road-expense" class="item">Unknown</div>
+				</div><!--end item-box-->
+
+				<div class="item-box">
+					<div class="title">Building</div>
+					<div id="building-expense" class="item">Unknown</div>
+				</div><!--end item-box-->
+
+				<div class="item-box">
+					<div class="title">Total Expenses</div>
+					<div id="total-expense" class="item">Unknown</div>
+				</div><!--end item-box-->
+
+			</div><!--end expense-box-->
+
+			<div class="income-box">
+
+				<div class="item-box">
+					<div class="title">Gross Income</div>
+					<div id="total-income" class="item">Unknown</div>
+				</div><!--end item-box-->
+
+			</div><!--end income-box-->
+
+			<div class="total-box">
+
+				<div class="item-box">
+					<div class="title">Net Income</div>
+					<div id="grand-total" class="item">Unknown</div>
+				</div><!--end item-box-->
+
+			</div><!--end total-box-->
+
+			<div id="expense-back" class="button">Back</div>
+
+		</div><!--end expense-popup-->
+		
+		<div class="moveLeft touch-button"></div>
+		<div class="moveUp touch-button"></div>
+		<div class="moveRight touch-button"></div>
+		<div class="moveDown touch-button"></div>
+		<div class="attack touch-button"></div>
+		<div class="cycleInventory touch-button"></div>
+	
+	</body>	
+
+<html>
