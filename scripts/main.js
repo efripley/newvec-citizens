@@ -218,6 +218,7 @@ function init(){
 		}
 		else if(event.target.getAttribute('id') == 'home-new'){
 			if(window.confirm("Are you sure you want to start a new game?\n This will delete any previous game.")){
+			window.alert("HOW TO PLAY:\nConstruct buildings with a floor and walls and build roads to connect them together. Then place beds and desks in the buildings to spawn new workers.\n\nCONTROLS:\n- Arrow Keys: Move the cursor around the map\n- F Key: Put the cursor in build mode\n- D Key: Cycle the inventory\n\nTIPS:\n- Press F key twice to lock cursor into build mode\n- Press F key a third time to cancle build mode\n- Planning blocks are free and useless\n- Make sure you have a floor tile beneath you beds and desks");
 				newGame();
 				document.getElementById('home-screen').setAttribute('style', 'display: none');
 			}
