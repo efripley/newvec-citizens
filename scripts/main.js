@@ -8,7 +8,7 @@ var tileOffsetX;
 var tileOffsetY;
 var tileSize = 32;
 var players = new Array();
-var worldSize = 100;
+var worldSize = 500;
 var playerDrawX;
 var playerDrawY;
 var attack = false;
@@ -20,7 +20,9 @@ var citizens = new Array();
 var hour = 8;
 var minute = 0;
 var day = 0;
-var minutesPerTurn = 1;
+var turnsForCurrentMinute = 0;
+var turnsPerMinute = 4;
+var frameTime = 125;
 var simulate = false;
 var tokens = 0;
 var todayTokens = 0.0;
@@ -53,7 +55,7 @@ function save(){
 	//Save the citizens
 	localStorage.numCitizens = citizens.length;
 	for(var a = 0; a < citizens.length; a++){
-		localStorage.setItem('cit' + a, citizens[a].homeX + "#" + citizens[a].homeY + "#" + citizens[a].workX + "#" + citizens[a].workY);
+		localStorage.setItem('cit' + a, citizens[a].homeX + "#" + citizens[a].homeY + "#" + citizens[a].workX + "#" + citizens[a].workY + "#" + citizens[a].tokens + "#" + citizens[a].name);
 	}
 
 	//Save the player
@@ -61,7 +63,6 @@ function save(){
 	localStorage.playerY = player.y;
 
 	localStorage.income = document.getElementById('total-income').innerHTML;
-	localStorage.food = document.getElementById('food-expense').innerHTML;
 	localStorage.roads = document.getElementById('road-expense').innerHTML;
 	localStorage.buildings = document.getElementById('building-expense').innerHTML;
 	localStorage.totalDebt = document.getElementById('total-expense').innerHTML;
@@ -74,28 +75,42 @@ function save(){
 	localStorage.day = day;
 	localStorage.tokens = tokens;
 	localStorage.todayTokens = todayTokens;
+
 }
 
 function load(){
+	console.log("Creating New Game");
 
 	//Stop the game loop
 	clearInterval(myInterval);
 
+	//Initializing game map to default
 	world.init();
-
 	world.load();
 
-	for(var a = 0; a < worldSize; a++){
+	for(var a = 0; a < worldSize; a++)
 		for(var b = 0; b < worldSize; b++){
 			players[b][a] = null;
 		}
-	}
+
+	//Initialize home work and citizens to default
+	homes.length = 0;
+	work.length = 0;
+	citizens.length = 0;
+
+	//Initialize player to default
+	player.init();
+
+	population = 0;
 
 	// load the citizens
 	if(localStorage.numCitizens != null){
 		for(var a = 0; a < localStorage.numCitizens; a++){
 			citizenArray = localStorage.getItem('cit' + a).split('#');
 			citizens.push(new Citizen(parseInt(citizenArray[0]), parseInt(citizenArray[1]), parseInt(citizenArray[0]), parseInt(citizenArray[1]), parseInt(citizenArray[2]), parseInt(citizenArray[3])));
+			citizens[a].tokens = parseInt(citizenArray[4]);
+			citizens[a].name = citizenArray[5];
+			document.getElementById('tooltip').setAttribute('style', 'display: inherit;');
 			for(var b = 0; b < homes.length; b++)
 				if(homes[b][0] == citizenArray[0] && homes[b][1] == citizenArray[1]){
 					homes[b][2] = 1;
@@ -113,7 +128,6 @@ function load(){
 	player.y = parseInt(localStorage.playerY);
 
 	document.getElementById('total-income').innerHTML = localStorage.income;
-	document.getElementById('food-expense').innerHTML = localStorage.food;
 	document.getElementById('road-expense').innerHTML = localStorage.roads;
 	document.getElementById('building-expense').innerHTML = localStorage.buildings;
 	document.getElementById('total-expense').innerHTML = localStorage.totalDebt;
@@ -128,19 +142,18 @@ function load(){
 	day = localStorage.day;
 	
 	var timeDiff = systemTime - logoffTime;
-	if(timeDiff > 1080)
-		timeDiff = 1080;
-	console.log("Simulating " + timeDiff + " seconds from saved game time " + hour + ":" + minute);
+	if(timeDiff > 4320)
+		timeDiff = 4320;
 	simulate = true;
-	for(var a = 0; a < timeDiff * 8; a++){
+	for(var a = 0; a < timeDiff * turnsPerMinute; a++){
 		update();
 	}
-	window.alert('Simutated ' + Math.floor(timeDiff / 15) + ' hours while you were away.');
+	window.alert('Simutated ' + Math.floor(timeDiff / 60) + ' hours while you were away.');
 	simulate = false;
 	console.log("New time is " + hour + ":" + minute);
 	drawMap();
 
-	myInterval = setInterval(update, 125);
+	myInterval = setInterval(update, frameTime);
 
 	playing = true;
 }
@@ -168,7 +181,6 @@ function newGame(){
 	player.init();
 
 	document.getElementById('total-income').innerHTML = 'Unknown';
-	document.getElementById('food-expense').innerHTML = 'Unknown';
 	document.getElementById('road-expense').innerHTML = 'Unknown';
 	document.getElementById('building-expense').innerHTML = 'Unknown';
 	document.getElementById('total-expense').innerHTML = 'Unknown';
@@ -190,7 +202,7 @@ function newGame(){
 	drawMap();
 	
 	//Restart the game loop
-	myInterval = setInterval(update, 125);
+	myInterval = setInterval(update, frameTime);
 
 	playing = true;
 
@@ -245,15 +257,15 @@ function init(){
 		}
 	});
 	document.getElementById('zoom-in').addEventListener('click', function(){
-		tileSize += 8;
-		if(tileSize > 48)
-			tileSize = 48;
+		tileSize *= 2;
+		if(tileSize > 64)
+			tileSize = 64;
 		resizeGame();
 	});
 	document.getElementById('zoom-out').addEventListener('click', function(){
-		tileSize -= 8;
-		if(tileSize < 8)
-			tileSize = 8;
+		tileSize /= 2;
+		if(tileSize < 2)
+			tileSize = 2;
 		resizeGame();
 	})
 	document.getElementById('stats').addEventListener('click', function(){
@@ -265,11 +277,30 @@ function init(){
 	document.getElementById('expense-back').addEventListener('click', function(){
 		document.getElementById('expense-popup').setAttribute('style', 'display: none');
 	});
+	document.getElementById('tooltip-name').onkeyup = function(){
+		index = parseInt(document.getElementById('tooltip').getAttribute('citizen-index'));
+		getCitizen(index).name = document.getElementById('tooltip-name').innerText;	
+	}
+	document.getElementById('close').addEventListener('click', function(){
+		document.getElementById('menu-popup').setAttribute('style', 'display: none');
+		document.getElementById('menu-button').innerHTML = "MENU";
+		clearInterval(myInterval);
+		save();
+		document.getElementById('home-screen').style.display = "block";
+		
+	});
 	document.getElementById('how-to-button').addEventListener('click', function(){
 		document.getElementById('how-to-play').setAttribute('style', 'display: inherit');
 	});
 
 	player.init();
+}
+
+function getCitizen(id){
+	for(var i = 0; i < citizens.length; i++)
+		if(citizens[i].id == id)
+			return citizens[i];
+	return false;
 }
 
 function update(){
@@ -281,22 +312,23 @@ function update(){
 			document.getElementById('tokens').innerHTML = '$' + tokens;
 			document.getElementById('population').innerHTML = 'P:' + population;
 		}
-		if(hour == 0 && minute == 0){
-			if(!simulate){
-				document.getElementById('food-expense').innerHTML = "-" + (population * 15);
-				document.getElementById('road-expense').innerHTML = "-" + (numRoadTiles * 2);
-				document.getElementById('building-expense').innerHTML = "-" + numBuildingTiles;
-				document.getElementById('total-expense').innerHTML = "-" + ((numRoadTiles * 2) + numBuildingTiles + (population * 15));
-				document.getElementById('total-income').innerHTML = parseInt(todayTokens);
-				document.getElementById('grand-total').innerHTML = parseInt(todayTokens - numBuildingTiles - (numRoadTiles * 2) - (population * 15));
+		if(hour == 0 && minute == 0 && turnsForCurrentMinute == 0){
+			for(var i = 0; i < citizens.length; i++){
+				todayTokens += citizens[i].tokens;
+				citizens[i].tokens = 0;
 			}
+			tokens += Math.floor(todayTokens);
+
+			document.getElementById('road-expense').innerHTML = "-" + (numRoadTiles * 2);
+			document.getElementById('building-expense').innerHTML = "-" + numBuildingTiles;
+			document.getElementById('total-expense').innerHTML = "-" + ((numRoadTiles * 2) + numBuildingTiles);
+			document.getElementById('total-income').innerHTML = parseInt(todayTokens);
+			document.getElementById('grand-total').innerHTML = parseInt(todayTokens - numBuildingTiles - (numRoadTiles * 2));
+
 			tokens -= numRoadTiles * 2;
 			tokens -= numBuildingTiles;
 			todayTokens = 0;
 			save();
-		}
-		else if(hour == 18 && minute == 0){
-			tokens += Math.floor(todayTokens);
 		}
 		frame++;
 	}
@@ -308,44 +340,49 @@ function update(){
 }
 
 function updateTime(){
-	minute += minutesPerTurn;
-	if(minute >= 60){
-		minute = 0;
-		hour++;
-		minute = 0;
-		if(hour >= 24){
-			day++;
-			hour = 0;
+	turnsForCurrentMinute++;
+	if(turnsForCurrentMinute >= turnsPerMinute){
+	//if(true){
+		minute++;
+		turnsForCurrentMinute = 0;
+		if(minute >= 60){
+			minute = 0;
+			hour++;
+			minute = 0;
+			if(hour >= 24){
+				day++;
+				hour = 0;
+			}
 		}
-	}
-	
-	var timeDiv = document.getElementById('time');
+		
+		var timeDiv = document.getElementById('time');
 
-	var displayHour = "";
-	var displayMinute = "";
-	var displayHalf = "";
-	if(hour == 0){
-		displayHour = "12:";
-		displayHalf = " AM";
-	}
-	else if(hour < 12){
-		displayHour = hour + ":";
-		displayHalf = " AM";
-	}
-	else if(hour == 12){
-		displayHour = hour + ":";
-		displayHalf = " PM";
-	}
-	else{
-		displayHour = (hour - 12) + ":";
-		displayHalf = " PM";
-	}
-	if(minute < 10)
-		displayMinute = "0" + minute;
-	else
-		displayMinute = minute;
+		var displayHour = "";
+		var displayMinute = "";
+		var displayHalf = "";
+		if(hour == 0){
+			displayHour = "12:";
+			displayHalf = " AM";
+		}
+		else if(hour < 12){
+			displayHour = hour + ":";
+			displayHalf = " AM";
+		}
+		else if(hour == 12){
+			displayHour = hour + ":";
+			displayHalf = " PM";
+		}
+		else{
+			displayHour = (hour - 12) + ":";
+			displayHalf = " PM";
+		}
+		if(minute < 10)
+			displayMinute = "0" + minute;
+		else
+			displayMinute = minute;
 
-	timeDiv.innerHTML = displayHour + displayMinute + displayHalf;
+		timeDiv.innerHTML = displayHour + displayMinute + displayHalf;
+	}
 }
 
 function updateCitizens(){
@@ -373,8 +410,8 @@ function updateCitizens(){
 function updateCitizen(citizen){
 	if(citizen.state == WORK && citizen.pathHomeToWork[0] > 0 && citizen.pathWorkToHome[0] > 0){
 		if(citizen.atWork() && hour >= 8 && hour < 17 || (hour == 17 && minute < citizen.homeTime)){
-			if(minute % 4 == 0)
-				todayTokens += citizen.happiness / 100;
+			if(turnsForCurrentMinute == 0)
+				citizen.tokens += .25;
 		}
 		else if(citizen.atWork() && ((hour == 17 && minute >= citizen.homeTime) || (hour > 17 || hour < 8))){
 			citizen.state = HOME;
@@ -486,8 +523,8 @@ function updateCitizen(citizen){
 				citizen.findPath();
 		}
 	}
-	if((hour == 6 || hour == 12 || hour == 19) && minute == 0){
-		tokens -= 5;
+	if((hour == 6 || hour == 12 || hour == 19) && minute == 0 && turnsForCurrentMinute == 0){
+		citizen.tokens -= 5;
 	}
 }
 
@@ -536,7 +573,7 @@ function drawMap(){
 	for(var fz = 0; fz < 2; fz++){
 		for(var fy = player.y - halfYTiles; fy <= player.y + halfYTiles; fy++){
 			for(var fx = player.x - halfXTiles; fx <= player.x + halfXTiles; fx++){
-				if(fy >= 0 && fy < 100 && fx >= 0 && fx < 100)
+				if(fy >= 0 && fy < worldSize && fx >= 0 && fx < worldSize)
 				{
 					var left = 0;
 					if(fx - 1 >= 0)
@@ -547,11 +584,11 @@ function drawMap(){
 						up = world.map[fx][fy - 1][fz];
 
 					var right = 0;
-					if(fx + 1 < 100)
+					if(fx + 1 < worldSize)
 						right = world.map[fx + 1][fy][fz];
 
 					var down = 0;
-					if(fy + 1 < 100) 
+					if(fy + 1 < worldSize) 
 						down = world.map[fx][fy + 1][fz];
 
 					getBlock(world.map[fx][fy][fz]).draw(drawx, drawy, left, up, right, down);
@@ -571,7 +608,7 @@ function drawMap(){
 
 	for(var a = player.y - halfYTiles; a <= player.y + halfYTiles; a++){
 		for(var b = player.x - halfXTiles; b <= player.x + halfXTiles; b++){
-			if(a >= 0 && a < 100 && b >= 0 && b < 100)
+			if(a >= 0 && a < worldSize && b >= 0 && b < worldSize)
 			{
 				if(players[b][a] != null){
 					var thisCitizen = players[b][a];
@@ -579,8 +616,10 @@ function drawMap(){
 					if(b == player.x && a == player.y){
 						thisCitizen.drawInfo();
 					}
-					else if(players[player.x][player.y] == null)
+					else if(players[player.x][player.y] == null){
 						document.getElementById('tooltip').setAttribute('style', 'display: none;');
+						document.getElementById('tooltip').setAttribute('citizen-index', -1);
+					}
 				}
 			}
 			drawx += tileSize;

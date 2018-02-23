@@ -4,7 +4,7 @@ function World(){
 	this.map = new Array();
 	
 	this.init = function(){
-		this.map = new Array3d(100, 100, 2, 0);
+		this.map = new Array3d(worldSize, worldSize, 2, 0);
 		for(var fy = 0; fy < worldSize; fy++)
 			for(var fx = 0; fx < worldSize; fx++){
 				this.map[fx][fy][0] = grass.id;

@@ -4,6 +4,7 @@ citizenImage.src = 'images/citizens.png';
 
 function Citizen(_x, _y, _homeX, _homeY, _workX, _workY){
 	this.id = citizens.length + 1;
+	this.name = "John" + this.id;
 	this.x = _x;
 	this.y = _y;
 	this.direction = 0;
@@ -21,6 +22,7 @@ function Citizen(_x, _y, _homeX, _homeY, _workX, _workY){
 	this.pathHomeToWork = new Array();
 	this.pathWorkToHome = new Array();
 	this.pathIndex = 0;
+	this.tokens = 0;
 
 	this.findPath = function(){
 		this.pathHomeToWork = findPath(this.homeX, this.homeY, this.workX, this.workY);
@@ -205,12 +207,13 @@ function Citizen(_x, _y, _homeX, _homeY, _workX, _workY){
 	this.newWork = function(){
 		console.log("Job change for " + this.id);
 		var workIndex = -1;
-		for(var a = 0; a < work.length; a++)
+		for(var a = 0; a < work.length; a++){
 			if(work[a][0] == this.workX && work[a][1] == this.workY){
 				workIndex = a;
 				break;
 			}
-		for(var a = 0; a < work.length; a++)
+		}
+		for(var a = 0; a < work.length; a++){
 			if(work[a][0] != this.workX && work[a][1] != this.workY && work[a][2] == -1){
 				if(Math.random() * 100 > this.happiness){
 					console.log("Job accepted");
@@ -223,12 +226,18 @@ function Citizen(_x, _y, _homeX, _homeY, _workX, _workY){
 				else
 					console.log("Job not accepted");
 			}
+		}
 	}
 
 	this.drawInfo = function(){
-		document.getElementById('tooltip').setAttribute('style', 'display: inherit;');
+		if(parseInt(document.getElementById('tooltip').getAttribute('citizen-index')) != this.id){
+			document.getElementById('tooltip').setAttribute('style', 'display: inherit;');
+			document.getElementById('tooltip').setAttribute('citizen-index', this.id);
 
-		document.getElementById('tooltip-name').innerHTML = 'John ' + this.id;
+			document.getElementById('tooltip-name').innerHTML = this.name;
+		}
+
+		document.getElementById('tooltip-tokens').innerHTML = "$" + Math.floor(this.tokens);
 
 		var toolTipStatus = document.getElementById('tooltip-my-status');
 		if(this.state == HOME && this.atHome())

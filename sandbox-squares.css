@@ -250,7 +250,7 @@ canvas{
 	display: none;
 	background-color: #333;
 	position: fixed;
-	z-index: 3;
+	z-index: 10;
 	top: 32px;
 	right: 0px;
 	width: auto;

@@ -8,8 +8,8 @@ function Player(){
 	this.direction = 0;
 	
 	this.init = function (){
-		this.x = 50;
-		this.y = 50;
+		this.x = 250;
+		this.y = 250;
 		this.dx = 0;
 		this.dy = 0;
 		this.direction = 0;
