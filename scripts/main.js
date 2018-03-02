@@ -55,7 +55,7 @@ function save(){
 	//Save the citizens
 	localStorage.numCitizens = citizens.length;
 	for(var a = 0; a < citizens.length; a++){
-		localStorage.setItem('cit' + a, citizens[a].homeX + "#" + citizens[a].homeY + "#" + citizens[a].workX + "#" + citizens[a].workY + "#" + citizens[a].tokens + "#" + citizens[a].name);
+		localStorage.setItem('cit' + a, citizens[a].x + "#" + citizens[a].y + "#" + citizens[a].homeX + "#" + citizens[a].homeY + "#" + citizens[a].workX + "#" + citizens[a].workY + "#" + citizens[a].tokens + "#" + citizens[a].name);
 	}
 
 	//Save the player
@@ -84,6 +84,11 @@ function load(){
 	//Stop the game loop
 	clearInterval(myInterval);
 
+	//Initialize home work and citizens to default
+	homes.length = 0;
+	work.length = 0;
+	citizens.length = 0;
+
 	//Initializing game map to default
 	world.init();
 	world.load();
@@ -92,11 +97,6 @@ function load(){
 		for(var b = 0; b < worldSize; b++){
 			players[b][a] = null;
 		}
-
-	//Initialize home work and citizens to default
-	homes.length = 0;
-	work.length = 0;
-	citizens.length = 0;
 
 	//Initialize player to default
 	player.init();
@@ -107,17 +107,17 @@ function load(){
 	if(localStorage.numCitizens != null){
 		for(var a = 0; a < localStorage.numCitizens; a++){
 			citizenArray = localStorage.getItem('cit' + a).split('#');
-			citizens.push(new Citizen(parseInt(citizenArray[0]), parseInt(citizenArray[1]), parseInt(citizenArray[0]), parseInt(citizenArray[1]), parseInt(citizenArray[2]), parseInt(citizenArray[3])));
-			citizens[a].tokens = parseInt(citizenArray[4]);
-			citizens[a].name = citizenArray[5];
+			citizens.push(new Citizen(parseInt(citizenArray[0]), parseInt(citizenArray[1]), parseInt(citizenArray[2]), parseInt(citizenArray[3]), parseInt(citizenArray[4]), parseInt(citizenArray[5])));
+			citizens[a].tokens = parseInt(citizenArray[6]);
+			citizens[a].name = citizenArray[7];
 			document.getElementById('tooltip').setAttribute('style', 'display: inherit;');
 			for(var b = 0; b < homes.length; b++)
-				if(homes[b][0] == citizenArray[0] && homes[b][1] == citizenArray[1]){
+				if(homes[b][0] == citizenArray[2] && homes[b][1] == citizenArray[3]){
 					homes[b][2] = 1;
 					break;
 				}
 			for(var b = 0; b < work.length; b++)
-				if(work[b][0] == citizenArray[2] && work[b][1] == citizenArray[3]){
+				if(work[b][0] == citizenArray[4] && work[b][1] == citizenArray[5]){
 					work[b][2] = 1;
 					break;
 				}
@@ -146,7 +146,8 @@ function load(){
 		timeDiff = 4320;
 	simulate = true;
 	for(var a = 0; a < timeDiff * turnsPerMinute; a++){
-		update();
+		update(); //frame 0
+		update(); //frame 1
 	}
 	window.alert('Simutated ' + Math.floor(timeDiff / 60) + ' hours while you were away.');
 	simulate = false;
@@ -630,6 +631,8 @@ function drawMap(){
 	context.fillStyle = '#fff';
 	if(attackLock)
 		context.fillStyle = '#ff0000';
+	else if(attack)
+		context.fillStyle = '#ffff00';
 	context.fillRect(playerDrawX + playerOffset, playerDrawY + tileSize / 2 - 2, playerSize, 4);
 	context.fillRect(playerDrawX + tileSize / 2 - 2, playerDrawY + playerOffset, 4, playerSize);
 }
