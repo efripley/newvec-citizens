@@ -314,11 +314,11 @@ function update(){
 			document.getElementById('population').innerHTML = 'P:' + population;
 		}
 		if(hour == 0 && minute == 0 && turnsForCurrentMinute == 0){
-			for(var i = 0; i < citizens.length; i++){
+			/*for(var i = 0; i < citizens.length; i++){
 				todayTokens += citizens[i].tokens;
 				citizens[i].tokens = 0;
 			}
-			tokens += Math.floor(todayTokens);
+			tokens += Math.floor(todayTokens);*/
 
 			document.getElementById('road-expense').innerHTML = "-" + (numRoadTiles * 2);
 			document.getElementById('building-expense').innerHTML = "-" + numBuildingTiles;
@@ -411,8 +411,13 @@ function updateCitizens(){
 function updateCitizen(citizen){
 	if(citizen.state == WORK && citizen.pathHomeToWork[0] > 0 && citizen.pathWorkToHome[0] > 0){
 		if(citizen.atWork() && hour >= 8 && hour < 17 || (hour == 17 && minute < citizen.homeTime)){
-			if(turnsForCurrentMinute == 0)
+			if(turnsForCurrentMinute == 0){
 				citizen.tokens += .25;
+				if(citizen.tokens >= 1){
+					citizen.tokens = 0;
+					tokens++;
+				}
+			}
 		}
 		else if(citizen.atWork() && ((hour == 17 && minute >= citizen.homeTime) || (hour > 17 || hour < 8))){
 			citizen.state = HOME;
